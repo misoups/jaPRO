@@ -183,5 +183,10 @@ XCVAR_DEF( cl_commandsize,						"64",					NULL,					CVAR_ARCHIVE ) //Loda - FPS 
 
 XCVAR_DEF( cg_onlyBhop,							"0",					NULL,					CVAR_ARCHIVE )
 XCVAR_DEF( cg_noRoll,							"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( cg_newRunAnim,						"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( cg_noCartwheel,						"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( dmflags,								"0",					NULL,					CVAR_SERVERINFO )
+XCVAR_DEF( g_tweakForce,						"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( bot_strafeOffset,					"0",					NULL,					CVAR_ARCHIVE )
 
 #undef XCVAR_DEF

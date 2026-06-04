@@ -1521,6 +1521,7 @@ typedef struct cg_staticmodel_s {
 #define JAPLUS_CINFO_FIXROLL2		(1<<2)
 #define JAPLUS_CINFO_FIXROLL3		(1<<3)
 #define JAPLUS_CINFO_HEADSLIDE		(1<<4)
+#define JAPLUS_CINFO_YELLOWDFA		(1<<5)
 #define JAPLUS_CINFO_JK2DFA			(1<<8)
 
 // loaded or calculated from the gamestate.  It will NOT

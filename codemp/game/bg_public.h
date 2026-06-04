@@ -464,6 +464,12 @@ extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
 #define	JAPRO_CINFO2_FIXPLAYERCOLLISION		(1<<3)
 #define	JAPRO_CINFO2_WTTRIBES				(1<<4)
 
+// g_tweakForce flags (shared between game and cgame)
+#define FT_FORCECOMBO			(1<<4)
+#define FT_FASTGRIP				(1<<7)
+#define FT_NORAGEFIRERATE		(1<<18)
+#define FT_BUFFMELEE			(1<<20)
+
 //JAPRO - Serverside + clientside restrictions
 #define JAPRO_RESTRICT_BHOP					(1<<0)
 #define JAPRO_RESTRICT_CROUCHJUMP			(1<<1)

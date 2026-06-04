@@ -13162,7 +13162,11 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.buttons &= ~BUTTON_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 	}
-	else if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_COOP_JKA && pm->ps->electrifyTime > level.time) {
+	else if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_COOP_JKA
+#if _GAME
+		&& pm->ps->electrifyTime > level.time
+#endif
+		) {
 		//pm->cmd.buttons &= ~BUTTON_ATTACK;
 		if (pm->ps->weapon == WP_BLASTER)
 			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
