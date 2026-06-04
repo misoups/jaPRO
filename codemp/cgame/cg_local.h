@@ -37,6 +37,18 @@
 
 #define	ITEM_BLOB_TIME		200
 #define	MUZZLE_FLASH_TIME	20
+
+// Vector4 helpers (not in jaPRO q_shared.h)
+#ifndef Vector4Set
+#define Vector4Set(v,r,g,b,a)		((v)[0]=(r),(v)[1]=(g),(v)[2]=(b),(v)[3]=(a))
+#endif
+#ifndef Vector4Copy
+#define Vector4Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+#endif
+
+// Server mod helpers
+#define IsJaPRO()					(cgs.isJAPro)
+#define IsRacemode(ps)				(IsJaPRO() && (ps)->stats[STAT_RACEMODE])
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
 #define	REWARD_TIME			3000
