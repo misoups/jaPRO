@@ -31,6 +31,10 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "../game/bg_public.h"
 
+#ifndef vec_t
+typedef float vec_t;
+#endif
+
 //Pmove functions
 int DF_GetMovePhysics();
 float DF_GetAccelerate();
