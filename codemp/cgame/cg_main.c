@@ -2508,6 +2508,14 @@ Ghoul2 Insert Start
 void CG_Init_CG(void)
 {
 	memset( &cg, 0, sizeof(cg));
+
+	// Default colors for strafe helper HUD
+	Vector4Set( cg.crosshairColor,           1.0f, 1.0f, 1.0f, 1.0f );
+	Vector4Set( cg.strafeHelperActiveColor,  0.0f, 1.0f, 0.0f, 0.78f );
+	Vector4Set( cg.snapHudRgba1,             0.5f, 0.7f, 0.9f, 0.7f );
+	Vector4Set( cg.snapHudRgba2,             0.5f, 0.5f, 0.5f, 0.15f );
+	Vector4Set( cg.pitchHudRgba,             0.8f, 0.8f, 0.8f, 0.8f );
+	cg.firstTimeInAir = qtrue;
 }
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
@@ -2625,6 +2633,8 @@ Ghoul2 Insert End
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap->R_RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
 	cgs.media.whiteShader		= trap->R_RegisterShader( "white" );
+	cgs.media.leftTriangle		= trap->R_RegisterShader( "gfx/2d/tri_left" );
+	cgs.media.hitSound4			= trap->S_RegisterSound( "sound/weapons/blaster/fire.wav" );
 
 	cgs.media.loadBarLED		= trap->R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadBarLEDCap		= trap->R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );

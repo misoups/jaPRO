@@ -4,6 +4,7 @@
 // active (after loading) gameplay
 
 #include "cg_local.h"
+#include "hud_strafehelper.h"
 
 #include "game/bg_saga.h"
 
@@ -7918,6 +7919,11 @@ static void CG_Draw2D( void ) {
 
 	// Draw this before the text so that any text won't get clipped off
 	CG_DrawZoomMask();
+
+	// Strafe helper / speedometer / race timer HUD
+	if ( cg.snap && cg.snap->ps.clientNum == cg.clientNum ) {
+		DF_DrawStrafeHUD( &cg_entities[cg.snap->ps.clientNum] );
+	}
 
 /*
 	if (cg.cameraMode) {

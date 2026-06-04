@@ -48,6 +48,7 @@ set(MPCGameCgameFiles
 	"${MPDir}/cgame/cg_main.c"
 	"${MPDir}/cgame/cg_marks.c"
 	"${MPDir}/cgame/cg_newDraw.c"
+	"${MPDir}/cgame/hud_strafehelper.c"
 	"${MPDir}/cgame/cg_players.c"
 	"${MPDir}/cgame/cg_playerstate.c"
 	"${MPDir}/cgame/cg_predict.c"

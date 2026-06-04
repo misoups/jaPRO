@@ -1011,7 +1011,31 @@ Ghoul2 Insert End
 	char *spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
 	int numSpawnVarChars;
 	char spawnVarChars[MAX_SPAWN_VARS_CHARS];
-	
+
+	// Strafe helper / speedometer / racing HUD state
+	vec4_t		crosshairColor;
+	vec4_t		strafeHelperActiveColor;
+	vec4_t		snapHudRgba1;
+	vec4_t		snapHudRgba2;
+	vec4_t		pitchHudRgba;
+	float		lastZSpeed;
+	float		lastJumpHeight;
+	float		lastJumpDistance;
+	float		lastYawSpeed;
+	float		previousSpeed;
+	float		lastGroundSpeed;
+	float		lastGroundSpeeds[512];
+	vec3_t		lastGroundPosition;
+	int			lastJumpHeightTime;
+	int			lastJumpDistanceTime;
+	int			lastGroundTime;
+	int			lastRaceTime;
+	int			startSpeed;
+	int			displacement;
+	int			maxSpeed;
+	int			displacementSamples;
+	qboolean	firstTimeInAir;
+
 } cg_t;
 
 #define MAX_TICS	14
@@ -1368,6 +1392,10 @@ typedef struct cgMedia_s {
 
 	// For vehicles only now
 	sfxHandle_t	noAmmoSound;
+
+	// Strafe helper / speedometer media
+	qhandle_t	leftTriangle;
+	sfxHandle_t	hitSound4;
 
 } cgMedia_t;
 
