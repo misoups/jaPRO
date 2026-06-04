@@ -1032,6 +1032,7 @@ void IntegerToRaceName(int style, char *styleString, size_t styleStringSize) {
 		case 16: Q_strncpyz(styleString, "ocpm", styleStringSize); break;
 		case 17: Q_strncpyz(styleString, "tribes", styleStringSize); break;
 		case 18: Q_strncpyz(styleString, "surf", styleStringSize); break;
+		case 19: Q_strncpyz(styleString, "quajk", styleStringSize); break;
 		default: Q_strncpyz(styleString, "ERROR", styleStringSize); break;
 	}
 }
@@ -5074,6 +5075,8 @@ int RaceNameToInteger(char *style) {
 		return 17;
 	if (!Q_stricmp(style, "surf"))
 		return 18;
+	if (!Q_stricmp(style, "quajk"))
+		return 19;
 	return -1;
 }
 

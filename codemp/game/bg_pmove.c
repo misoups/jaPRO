@@ -370,7 +370,7 @@ QINLINE int PM_GetMovePhysics(void)
 #if _GAME
 	if (pm->ps->stats[STAT_RACEMODE])
 		return (pm->ps->stats[STAT_MOVEMENTSTYLE]);
-	else if ((g_movementStyle.integer >= MV_SIEGE && g_movementStyle.integer <= MV_WSW) || (g_movementStyle.integer == MV_SP || g_movementStyle.integer == MV_SLICK || g_movementStyle.integer == MV_OCPM || g_movementStyle.integer == MV_TRIBES))
+	else if ((g_movementStyle.integer >= MV_SIEGE && g_movementStyle.integer <= MV_WSW) || (g_movementStyle.integer == MV_SP || g_movementStyle.integer == MV_SLICK || g_movementStyle.integer == MV_OCPM || g_movementStyle.integer == MV_TRIBES || g_movementStyle.integer == MV_QUAJK))
 		return (g_movementStyle.integer);
 	else if (g_movementStyle.integer < MV_SIEGE)
 		return 0;
@@ -1182,7 +1182,7 @@ static void PM_Friction( void ) {
 	{
 		// apply ground friction
 		if ( pm->waterlevel <= 1 ) {
-			if (pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) && ((moveStyle != MV_SLICK || (pm->cmd.buttons & BUTTON_WALKING)) && (moveStyle != MV_TRIBES || !(pm->cmd.buttons & BUTTON_DASH)) && (moveStyle != MV_TRIBES || pm->ps->clientNum < MAX_CLIENTS || (pm->ps->eFlags2 & EF2_NOT_USED_1 && !pm->waterlevel) || !(pm->cmd.buttons & BUTTON_WALKING))) ) { //Slick style here potentially
+			if (pml.walking && (!(pml.groundTrace.surfaceFlags & SURF_SLICK) || (moveStyle == MV_QUAJK && (pm->cmd.buttons & BUTTON_WALKING))) && ((moveStyle != MV_SLICK || (pm->cmd.buttons & BUTTON_WALKING)) && (moveStyle != MV_TRIBES || !(pm->cmd.buttons & BUTTON_DASH)) && (moveStyle != MV_TRIBES || pm->ps->clientNum < MAX_CLIENTS || (pm->ps->eFlags2 & EF2_NOT_USED_1 && !pm->waterlevel) || !(pm->cmd.buttons & BUTTON_WALKING))) ) { //Slick style here potentially
 				//do this unless its (slick and walking) or unless its (tribes and not walking)
 										
 				// if getting knocked back, no friction
@@ -1450,6 +1450,50 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel )
 
 		VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
 	}
+}
+
+/*
+==============
+PM_QuaJKAccelerate
+
+Q2-style acceleration with variable accel rate that blends between
+baseAccel (at wishspeed) and maxAccel (at maxAccelWishSpeed).
+Used by the QuaJK movement style.
+==============
+*/
+static void PM_QuaJKAccelerate( vec3_t wishdir, float wishspeed, float baseAccel, float maxAccel, float maxAccelWishSpeed ) {
+	int		i;
+	float	addspeed, accelspeed, currentspeed;
+	float	accel, f, finalWishSpeed;
+	float	accelAddSlow, accelAddHigh;
+	float	neededSpeedSlow, neededSpeedHigh;
+
+	currentspeed = DotProduct( pm->ps->velocity, wishdir );
+	if ( currentspeed >= wishspeed ) return;
+
+	accelAddSlow = baseAccel * pml.frametime * wishspeed;
+	accelAddHigh = maxAccel * pml.frametime * maxAccelWishSpeed;
+	neededSpeedSlow = wishspeed - accelAddSlow;
+	neededSpeedHigh = maxAccelWishSpeed - accelAddHigh;
+
+	if ( neededSpeedSlow == neededSpeedHigh )
+		f = 1;
+	else
+		f = ( currentspeed - neededSpeedHigh ) / ( neededSpeedSlow - neededSpeedHigh );
+
+	if ( f < 0 ) f = 0;
+	else if ( f > 1 ) f = 1;
+
+	accel = ( f * baseAccel ) + ( ( 1.0f - f ) * maxAccel );
+	finalWishSpeed = ( f * wishspeed ) + ( ( 1.0f - f ) * maxAccelWishSpeed );
+	accelspeed = accel * pml.frametime * finalWishSpeed;
+	addspeed = finalWishSpeed - currentspeed;
+
+	if ( addspeed <= 0 ) return;
+	if ( accelspeed > addspeed ) accelspeed = addspeed;
+
+	for ( i = 0; i < 3; i++ )
+		pm->ps->velocity[i] += accelspeed * wishdir[i];
 }
 
 void CPM_PM_Aircontrol (pmove_t *pm, vec3_t wishdir, float wishspeed )
@@ -2575,7 +2619,7 @@ static qboolean PM_CheckJump( void )
 	if ( pm->ps->pm_flags & PMF_JUMP_HELD ) 
 	{
 		// clear upmove so cmdscale doesn't lower running speed - LODA FIXME - no idea what this does lol
-		if (moveStyle != MV_QW && moveStyle != MV_CPM && moveStyle != MV_Q3 && moveStyle != MV_PJK && moveStyle != MV_WSW && moveStyle != MV_RJQ3 && moveStyle != MV_RJCPM && moveStyle != MV_JETPACK && moveStyle != MV_SLICK && moveStyle != MV_BOTCPM)
+		if (moveStyle != MV_QW && moveStyle != MV_CPM && moveStyle != MV_Q3 && moveStyle != MV_PJK && moveStyle != MV_WSW && moveStyle != MV_RJQ3 && moveStyle != MV_RJCPM && moveStyle != MV_JETPACK && moveStyle != MV_SLICK && moveStyle != MV_BOTCPM && moveStyle != MV_QUAJK)
 		{
 			pm->cmd.upmove = 0;
 			return qfalse;
@@ -3348,14 +3392,14 @@ static qboolean PM_CheckJump( void )
 	}
 	if (pm->cmd.upmove > 0)
 	{//no special jumps
-		if (moveStyle == MV_QW || moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_PJK || moveStyle == MV_WSW || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM)
+		if (moveStyle == MV_QW || moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_PJK || moveStyle == MV_WSW || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM || moveStyle == MV_QUAJK)
 		{
 			vec3_t hVel;
 			float added, xyspeed, realjumpvelocity = JUMP_VELOCITY;
 
 			if (moveStyle == MV_WSW)
 				realjumpvelocity = 280.0f;
-			else if (moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM)
+			else if (moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM || moveStyle == MV_QUAJK)
 				realjumpvelocity = 270.0f;
 
 			hVel[0] = pm->ps->velocity[0];
@@ -3566,7 +3610,16 @@ static void PM_WaterMove( void ) {
 	if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_TRIBES)
 		wishspeed *= 2;
 
-	PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
+	if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_QUAJK) {
+		float accel;
+		if (DotProduct(pm->ps->velocity, wishdir) < 0)
+			accel = pm_cpm_airstopaccelerate;
+		else
+			accel = pm_wateraccelerate;
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, 30.0f);
+	} else {
+		PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
+	}
 
 	// make sure we can go up slopes easily under water
 	if ( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0 ) {
@@ -4001,6 +4054,14 @@ static void PM_AirMove( void ) {
 	}
 	else if (moveStyle == MV_SURF) {
 		PM_CS_AirAccelerate(wishdir, wishspeed, 100.0f);
+	}
+	else if (moveStyle == MV_QUAJK) {
+		float accel;
+		if (DotProduct(pm->ps->velocity, wishdir) < 0)
+			accel = pm_cpm_airstopaccelerate;
+		else
+			accel = pm_airaccelerate;
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, 30.0f);
 	}
 	else if (moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_PJK || moveStyle == MV_WSW || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM)
 	{
@@ -4812,11 +4873,10 @@ static void PM_WalkMove( void ) {
 	}
 	else if (((pml.groundTrace.surfaceFlags & SURF_SLICK) && moveStyle != MV_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
 	{//We just ignore this with slick style since we area always slick, we dont need the flag to tell us that
-		accelerate = pm_airaccelerate; //this should be changed for QW and other stuff, but whatever, already done
-		if (moveStyle == MV_OCPM)
-			accelerate = 15.0f;
+		if (moveStyle == MV_OCPM || moveStyle == MV_QUAJK)
+			accelerate = pm_cpm_accelerate;
 		else
-			accelerate = pm_airaccelerate; //this should be changed for QW and other stuff, but whatever, already done
+			accelerate = pm_airaccelerate;
 	}
 	else
 	{
@@ -4893,7 +4953,18 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 
-	PM_StepSlideMove( qfalse );
+	if (moveStyle == MV_QUAJK) {
+		// Preserve speed through slope/ramp collisions for QuaJK
+		float speed_pre = VectorLength(pm->ps->velocity);
+		PM_StepSlideMove(qfalse);
+		if (speed_pre > 0) {
+			float speed_post = VectorLength(pm->ps->velocity);
+			if (speed_post > 0 && speed_post < speed_pre)
+				VectorScale(pm->ps->velocity, speed_pre / speed_post, pm->ps->velocity);
+		}
+	} else {
+		PM_StepSlideMove( qfalse );
+	}
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 }
@@ -5484,7 +5555,7 @@ static void PM_CrashLand(void) {
 		pm->ps->velocity[2] = 0;
 	}
 
-	if ((moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM || moveStyle == MV_SURF) && ((int)pm->ps->fd.forceJumpZStart > pm->ps->origin[2] + 1)) {
+	if ((moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_Q3 || moveStyle == MV_RJQ3 || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM || moveStyle == MV_SURF || moveStyle == MV_QUAJK) && ((int)pm->ps->fd.forceJumpZStart > pm->ps->origin[2] + 1)) {
 		if (1 > (sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1])))//No xyvel
 			pm->ps->velocity[2] = -vel; //OVERBOUNCE OVER BOUNCE
 	}
@@ -5698,6 +5769,14 @@ static void PM_GroundTrace( void ) {
 	if ( trace.fraction == 1.0 ) {
 		PM_GroundTraceMissed();
 		pml.groundPlane = qfalse;
+		pml.walking = qfalse;
+		return;
+	}
+
+	// Q2/Q3 ramp departure: QuaJK leaves the ground when going up fast enough
+	if ( pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_QUAJK && pm->ps->velocity[2] > 180 ) {
+		pm->ps->groundEntityNum = ENTITYNUM_NONE;
+		pml.groundPlane = qtrue;
 		pml.walking = qfalse;
 		return;
 	}

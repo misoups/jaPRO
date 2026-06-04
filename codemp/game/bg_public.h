@@ -533,6 +533,7 @@ typedef enum //movementstyle enum
 	MV_OCPM,
 	MV_TRIBES,
 	MV_SURF,
+	MV_QUAJK,
 	MV_NUMSTYLES
 } movementStyle_e;
 
