@@ -2747,9 +2747,6 @@ Ghoul2 Insert End
 
 	CG_RegisterCvars();
 
-	// Identify ourselves as the jaPRO client plugin so the server enables /move etc.
-	trap->Cvar_Set( "cjp_client", "1.4JAPRO" );
-
 	CG_InitConsoleCommands();
 
 	cg.renderingThirdPerson = cg_thirdPerson.integer;

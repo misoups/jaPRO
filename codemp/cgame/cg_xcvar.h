@@ -172,6 +172,7 @@ XCVAR_DEF( ui_tm3_cnt,							"0",					NULL,					CVAR_ROM|CVAR_INTERNAL )
 
 //Movement
 XCVAR_DEF( cg_jumpHeight,						"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( cjp_client,						"1.4JAPRO",				NULL,					CVAR_USERINFO|CVAR_ROM )
 XCVAR_DEF( cp_pluginDisable,					"0",					NULL,					CVAR_ARCHIVE|CVAR_USERINFO )
 //XCVAR_DEF( cg_movementStyle,					"1",					NULL,					CVAR_ARCHIVE|CVAR_USERINFO )
 

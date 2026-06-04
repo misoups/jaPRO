@@ -258,11 +258,40 @@ int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );
 }
 
+static const struct { int bit; const char *name; } strafeHelperFlags[] = {
+	{ 1<<0,  "original" },
+	{ 1<<1,  "updated" },
+	{ 1<<2,  "cgaz" },
+	{ 1<<3,  "wsw" },
+	{ 1<<4,  "sound" },
+	{ 1<<5,  "W key" },
+	{ 1<<6,  "WA key" },
+	{ 1<<7,  "WD key" },
+	{ 1<<8,  "A key" },
+	{ 1<<9,  "D key" },
+	{ 1<<10, "rear" },
+	{ 1<<11, "center" },
+	{ 1<<12, "accelmeter" },
+	{ 1<<13, "weze" },
+	{ 1<<14, "crosshair" },
+	{ 1<<15, "S key" },
+	{ 1<<18, "tiny" },
+	{ 1<<19, "max" },
+	{ 1<<20, "accelzones" },
+};
+
 static void CG_StrafeHelper_f( void ) {
 	if ( trap->Cmd_Argc() < 2 ) {
-		trap->Print( va( "cg_strafeHelper is currently: %d\nUsage: /strafeHelper <value>\n"
-			"  1=original  2=updated  4=cgaz  8=wsw  64=sound  512=accelmeter  8192=weze\n",
-			cg_strafeHelper.integer ) );
+		int i, cur = cg_strafeHelper.integer;
+		int n = (int)(sizeof(strafeHelperFlags)/sizeof(strafeHelperFlags[0]));
+		trap->Print( va("cg_strafeHelper = %d\n", cur) );
+		for ( i = 0; i < n; i++ ) {
+			trap->Print( va("  %5d [%c] %s\n",
+				strafeHelperFlags[i].bit,
+				(cur & strafeHelperFlags[i].bit) ? 'X' : ' ',
+				strafeHelperFlags[i].name ) );
+		}
+		trap->Print( "Usage: /strafeHelper <value>  (e.g. /strafeHelper 7 for original+updated+cgaz)\n" );
 		return;
 	}
 	trap->Cvar_Set( "cg_strafeHelper", CG_Argv(1) );
