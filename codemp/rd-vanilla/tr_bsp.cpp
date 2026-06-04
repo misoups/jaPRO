@@ -1315,7 +1315,7 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 		memcpy( hunkgrid->widthLodError, grid->widthLodError, grid->width * 4 );
 
 		hunkgrid->heightLodError = (float *)Hunk_Alloc( grid->height * 4, h_low );
-		memcpy( grid->heightLodError, grid->heightLodError, grid->height * 4 );
+		memcpy( hunkgrid->heightLodError, grid->heightLodError, grid->height * 4 );
 
 		R_FreeSurfaceGridMesh( grid );
 
@@ -1938,8 +1938,6 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 		}
  		if (!Q_stricmp(keyname, "distanceCull")) {
 			sscanf(value, "%f", &tr.distanceCull );
-			if (r_distanceCull && r_distanceCull->value)
-				tr.distanceCull = r_distanceCull->value;
 			continue;
 		}
 		// check for a different grid size
@@ -1959,6 +1957,11 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 	}
 	//both default to 1 so no harm if not present.
 	VectorScale( tr.sunAmbient, ambient, tr.sunAmbient);
+
+	// Allow r_distanceCull to override the map's distancecull value (or the default).
+	// Setting r_distanceCull to 0 disables distance culling entirely (matches jk2mv behaviour).
+	if (r_distanceCull && r_distanceCull->value > 0.0f)
+		tr.distanceCull = r_distanceCull->value;
 }
 
 /*
