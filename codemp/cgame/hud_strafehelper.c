@@ -2340,7 +2340,7 @@ void DF_DrawSnapHud(void)
 		fps = 125;
 	}
 	else {
-		fps = cg_snapHudFps.integer ? cg_snapHudFps.integer : trap->Cvar_VariableIntegerValue( "com_maxFPS" );
+		{ char _fpsbuf[8]; trap->Cvar_VariableStringBuffer("com_maxFPS", _fpsbuf, sizeof(_fpsbuf)); fps = cg_snapHudFps.integer ? cg_snapHudFps.integer : atoi(_fpsbuf); }
 	}
 
 	if (state.physics.hasAirControl == qtrue) {
