@@ -1,0 +1,321 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+  release:
+    types: [published]
+
+jobs:
+  msvc:
+    name: Windows ${{ matrix.arch }} ${{ matrix.build_type }}
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86, x86_64]
+        build_type: [Release]
+        include:
+          - arch: x86
+            platform: Win32
+          - arch: x86_64
+            platform: x64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Add msbuild to PATH
+        shell: pwsh
+        run: |
+          $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vsWhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+          if ($vsPath) {
+            $msBuildPath = Get-ChildItem -Path "$vsPath\MSBuild\Current\Bin\MSBuild.exe" -ErrorAction SilentlyContinue |
+                           Select-Object -First 1 -ExpandProperty Directory
+            if ($msBuildPath) {
+              echo "$msBuildPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            } else {
+              throw "MSBuild not found in VS installation"
+            }
+          } else {
+            throw "Visual Studio installation not found"
+          }
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -S . -B build \
+            -A ${{ matrix.platform }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DBuildSPEngine=OFF \
+            -DBuildSPGame=OFF
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config ${{ matrix.build_type }} -j $NUMBER_OF_PROCESSORS
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          find build/${{ matrix.build_type }} -maxdepth 1 \( -name "*.dll" -o -name "*.exe" \) -exec cp {} dist/ \;
+          cd dist
+          7z a -r ../jaPRO-windows-${{ matrix.arch }}.zip *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jaPRO-windows-${{ matrix.arch }}
+          path: jaPRO-windows-${{ matrix.arch }}.zip
+          if-no-files-found: error
+
+  linux:
+    name: Linux ${{ matrix.arch }} ${{ matrix.build_type }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86, x86_64]
+        build_type: [Release]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.arch }}" == "x86" ]; then
+            sudo dpkg --add-architecture i386
+            sudo apt-get -qq update
+            sudo apt-get -y install gcc-multilib g++-multilib ninja-build \
+              libjpeg-dev:i386 libpng-dev:i386 zlib1g-dev:i386 libsdl2-dev:i386
+          else
+            sudo apt-get -qq update
+            sudo apt-get -y install libjpeg-dev libpng-dev zlib1g-dev libsdl2-dev
+          fi
+
+      - name: Configure CMake
+        run: |
+          OPTIONS="-DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX=install"
+          OPTIONS+=" -DBuildSPEngine=OFF -DBuildSPGame=OFF"
+          if [ "${{ matrix.arch }}" == "x86" ]; then
+            OPTIONS+=" -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchains/linux-i686.cmake"
+          fi
+          cmake -S . -B build $OPTIONS
+
+      - name: Build
+        run: cmake --build build -j $(nproc)
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          find build -maxdepth 1 \( -name "*.so" -o -name "openjk.*" -o -name "openjkded.*" \) ! -name "*.so.*" -exec cp {} dist/ \;
+          cd dist
+          tar -czvf ../jaPRO-linux-${{ matrix.arch }}.tar.gz *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jaPRO-linux-${{ matrix.arch }}
+          path: jaPRO-linux-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+
+  macos-x86_64:
+    name: macOS x86_64 ${{ matrix.build_type }}
+    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install dependencies
+        run: brew install sdl2
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DBuildSPEngine=OFF \
+            -DBuildSPGame=OFF
+
+      - name: Build
+        run: cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          find build -maxdepth 1 \( -name "*.dylib" -o -name "*.so" -o -name "openjk.*" -o -name "openjkded.*" \) \
+            ! -name "*.dylib.*" -exec cp {} dist/ \;
+          find build -maxdepth 2 -name "*.app" -exec cp -R {} dist/ \;
+          cd dist
+          chmod +x openjk.x86_64 openjkded.x86_64 2>/dev/null || true
+          codesign --force --deep --sign - openjk.x86_64.app 2>/dev/null || true
+          codesign --force --deep --sign - openjkded.x86_64 2>/dev/null || true
+          tar -czvf ../jaPRO-macos-x86_64.tar.gz *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jaPRO-macos-x86_64
+          path: jaPRO-macos-x86_64.tar.gz
+          if-no-files-found: error
+
+  macos-arm64:
+    name: macOS arm64 ${{ matrix.build_type }}
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install dependencies
+        run: brew install sdl2
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_SYSTEM_PROCESSOR=arm64 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DBuildSPEngine=OFF \
+            -DBuildSPGame=OFF
+
+      - name: Build
+        run: cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          find build -maxdepth 1 \( -name "*.dylib" -o -name "*.so" -o -name "openjk.*" -o -name "openjkded.*" \) \
+            ! -name "*.dylib.*" -exec cp {} dist/ \;
+          find build -maxdepth 2 -name "*.app" -exec cp -R {} dist/ \;
+          cd dist
+          chmod +x openjk.arm64 openjkded.arm64 2>/dev/null || true
+          codesign --force --deep --sign - openjk.arm64.app 2>/dev/null || true
+          codesign --force --deep --sign - openjkded.arm64 2>/dev/null || true
+          tar -czvf ../jaPRO-macos-arm64.tar.gz *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jaPRO-macos-arm64
+          path: jaPRO-macos-arm64.tar.gz
+          if-no-files-found: error
+
+  create-latest:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
+    needs: [msvc, linux, macos-x86_64, macos-arm64]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create latest release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_RELEASE_COMMIT=$(gh api repos/${{ github.repository }}/releases/tags/latest \
+            --jq '.target_commitish // empty' 2>/dev/null || echo "")
+          gh release delete latest --cleanup-tag --yes 2>/dev/null || true
+
+          RELEASE_BODY="## Commits"
+
+          if [ -n "$LATEST_RELEASE_COMMIT" ] && git rev-parse --quiet --verify "$LATEST_RELEASE_COMMIT^{commit}" >/dev/null 2>&1; then
+            COMMITS=$(git log $LATEST_RELEASE_COMMIT..HEAD --pretty=format:"%h|%s|%an")
+          else
+            COMMITS=$(git log -5 --pretty=format:"%h|%s|%an")
+          fi
+
+          while IFS='|' read -r hash subject author; do
+            if [[ $subject =~ \(#([0-9]+)\)$ ]]; then
+              PR_NUM="${BASH_REMATCH[1]}"
+              subject=$(echo "$subject" | sed 's/ (#[0-9]\+)$//')
+              PR_LINK=" [#${PR_NUM}](https://github.com/${{ github.repository }}/pull/${PR_NUM})"
+              RELEASE_BODY+=$'\n'"- $hash: $subject ($author)${PR_LINK}"
+            else
+              RELEASE_BODY+=$'\n'"- $hash: $subject ($author)"
+            fi
+          done <<< "$COMMITS"
+
+          RELEASE_FILES=""
+          for artifact_dir in artifacts/*/; do
+            for file in "$artifact_dir"*; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                cp "$file" "$filename"
+                RELEASE_FILES="$RELEASE_FILES $filename"
+              fi
+            done
+          done
+
+          gh release create latest \
+            --title "Latest Build" \
+            --notes "$RELEASE_BODY" \
+            --target ${{ github.sha }} \
+            $RELEASE_FILES
+
+  create-release:
+    if: github.event_name == 'release'
+    needs: [msvc, linux, macos-x86_64, macos-arm64]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Upload archives to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for artifact_dir in artifacts/*/; do
+            for file in "$artifact_dir"*; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                gh release upload "${{ github.event.release.tag_name }}" \
+                  "$file" \
+                  --clobber \
+                  --name "$filename"
+              fi
+            done
+          done
