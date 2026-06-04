@@ -2016,8 +2016,10 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	}
 
 	//Debug this crash
-	Com_Printf("BG_FindItemForWeapon crash\n"); 
+	Com_Printf("BG_FindItemForWeapon crash\n");
+#ifdef _GAME
 	Svcmd_GameMem_f();
+#endif
 	if (it->classname)
 		Com_Printf("Last classname %s type %i, tag %i, end: %i\n", it->classname, it->giType, it->giTag, it);
 
