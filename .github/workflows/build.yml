@@ -63,7 +63,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_INSTALL_PREFIX=install \
             -DBuildSPEngine=OFF \
-            -DBuildSPGame=OFF
+            -DBuildSPGame=OFF \
+            -DBuildMPCGame=OFF \
+            -DBuildMPUI=OFF
 
       - name: Build
         shell: bash

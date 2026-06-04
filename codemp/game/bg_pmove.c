@@ -3613,10 +3613,10 @@ static void PM_WaterMove( void ) {
 	if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_QUAJK) {
 		float accel;
 		if (DotProduct(pm->ps->velocity, wishdir) < 0)
-			accel = pm_cpm_airstopaccelerate;
+			accel = 2.5f;
 		else
 			accel = pm_wateraccelerate;
-		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, 30.0f);
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, 70.0f, 30.0f);
 	} else {
 		PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
 	}
@@ -4058,10 +4058,10 @@ static void PM_AirMove( void ) {
 	else if (moveStyle == MV_QUAJK) {
 		float accel;
 		if (DotProduct(pm->ps->velocity, wishdir) < 0)
-			accel = pm_cpm_airstopaccelerate;
+			accel = 2.5f;
 		else
 			accel = pm_airaccelerate;
-		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, 30.0f);
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, 70.0f, 30.0f);
 	}
 	else if (moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_PJK || moveStyle == MV_WSW || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM)
 	{
@@ -4874,7 +4874,7 @@ static void PM_WalkMove( void ) {
 	else if (((pml.groundTrace.surfaceFlags & SURF_SLICK) && moveStyle != MV_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
 	{//We just ignore this with slick style since we area always slick, we dont need the flag to tell us that
 		if (moveStyle == MV_OCPM || moveStyle == MV_QUAJK)
-			accelerate = pm_cpm_accelerate;
+			accelerate = 15.0f;
 		else
 			accelerate = pm_airaccelerate;
 	}
