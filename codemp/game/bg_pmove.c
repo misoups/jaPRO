@@ -4564,7 +4564,7 @@ static void PM_GrappleMove( void ) {
 #if _GAME
 	int pullSpeed = g_hookStrength.integer;
 #else
-	int pullspeed = 800;
+	int pullSpeed = 800;
 #endif
 
 	VectorScale(pml.forward, -16, v);

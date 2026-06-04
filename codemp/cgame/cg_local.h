@@ -1510,6 +1510,19 @@ typedef struct cg_staticmodel_s {
 } cg_staticmodel_t;
 
 // The client game static (cgs) structure hold everything
+// Server mod identifiers (cgs.serverMod)
+#define SVMOD_NONE		0
+#define SVMOD_JAPRO		1
+#define SVMOD_JAPLUS	2
+
+// JA+ client info flags (cgs.cinfo) — used for JA+ server compatibility
+#define JAPLUS_CINFO_FLIPKICK		(1<<0)
+#define JAPLUS_CINFO_FIXROLL1		(1<<1)
+#define JAPLUS_CINFO_FIXROLL2		(1<<2)
+#define JAPLUS_CINFO_FIXROLL3		(1<<3)
+#define JAPLUS_CINFO_HEADSLIDE		(1<<4)
+#define JAPLUS_CINFO_JK2DFA			(1<<8)
+
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournament restart is done, allowing
 // all clients to begin playing instantly
@@ -1579,6 +1592,8 @@ typedef struct cgs_s {
 	int				jcinfo;
 	int				jcinfo2;
 	int				restricts;
+	int				serverMod;		// SVMOD_NONE / SVMOD_JAPRO / SVMOD_JAPLUS
+	int				hookpull;		// grapple hook pull speed from server
 	qboolean		isJAPro;
 	qboolean		isJAPlus;
 

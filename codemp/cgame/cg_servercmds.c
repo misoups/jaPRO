@@ -173,16 +173,22 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.isJAPlus = qfalse;
 	cgs.isJAPro = qfalse;
+	cgs.serverMod = SVMOD_NONE;
 	cgs.cinfo = 0;
 	cgs.jcinfo = 0;
 	cgs.restricts = 0;
+	cgs.hookpull = 800;
 	if (!Q_stricmpn(Info_ValueForKey(info, "gamename"), "JA+ Mod", 7) || !Q_stricmpn(Info_ValueForKey(info, "gamename"), "^4U^3A^5Galaxy", 14 )) {	//uag :s - yes its fatz
 		cgs.isJAPlus = qtrue;
+		cgs.serverMod = SVMOD_JAPLUS;
 		cgs.cinfo = atoi (Info_ValueForKey (info, "jp_cinfo" ));//[JAPRO - Clientside - All - Add jp_cinfo variable to get cinfo from japlus servers]
-	} 
+	}
 	else if (!Q_stricmpn(Info_ValueForKey(info, "gamename"), "japro", 5)) {
 		cgs.isJAPro = qtrue;
+		cgs.serverMod = SVMOD_JAPRO;
 		cgs.jcinfo= atoi (Info_ValueForKey (info, "jcinfo" ));//[JAPRO - Clientside - All - Add gamename variable to get jcinfo from japro servers]
+		cgs.hookpull = atoi (Info_ValueForKey (info, "g_hookStrength" ));
+		if (!cgs.hookpull) cgs.hookpull = 800;
 	}
 	cgs.restricts = atoi (Info_ValueForKey (info, "restricts" ));//[JAPRO - Clientside - All - Add gamename variable to get jcinfo from japro servers]
 

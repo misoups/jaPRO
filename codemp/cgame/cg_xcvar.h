@@ -181,4 +181,7 @@ XCVAR_DEF( cl_commandsize,						"64",					NULL,					CVAR_ARCHIVE ) //Loda - FPS 
 
 //Other
 
+XCVAR_DEF( cg_onlyBhop,							"0",					NULL,					CVAR_ARCHIVE )
+XCVAR_DEF( cg_noRoll,							"0",					NULL,					CVAR_ARCHIVE )
+
 #undef XCVAR_DEF
