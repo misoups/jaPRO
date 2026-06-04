@@ -258,6 +258,16 @@ int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );
 }
 
+static void CG_StrafeHelper_f( void ) {
+	if ( trap->Cmd_Argc() < 2 ) {
+		trap->Print( va( "cg_strafeHelper is currently: %d\nUsage: /strafeHelper <value>\n"
+			"  1=original  2=updated  4=cgaz  8=wsw  64=sound  512=accelmeter  8192=weze\n",
+			cg_strafeHelper.integer ) );
+		return;
+	}
+	trap->Cvar_Set( "cg_strafeHelper", CG_Argv(1) );
+}
+
 /* This array MUST be sorted correctly by alphabetical name field */
 static consoleCommand_t	commands[] = {
 	{ "+scores",					CG_ScoresDown_f },
@@ -278,6 +288,7 @@ static consoleCommand_t	commands[] = {
 	{ "sizedown",					CG_SizeDown_f },
 	{ "sizeup",						CG_SizeUp_f },
 	{ "startOrbit",					CG_StartOrbit_f },
+	{ "strafeHelper",				CG_StrafeHelper_f },
 	{ "tcmd",						CG_TargetCommand_f },
 	{ "tell_attacker",				CG_TellAttacker_f },
 	{ "tell_target",				CG_TellTarget_f },
