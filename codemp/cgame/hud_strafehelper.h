@@ -35,6 +35,22 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 typedef float vec_t;
 #endif
 
+// Text style / alignment constants (from ui_shared.h, defined here for portability)
+#ifndef ITEM_ALIGN_LEFT
+#define ITEM_ALIGN_LEFT				0
+#define ITEM_ALIGN_CENTER			1
+#define ITEM_ALIGN_RIGHT			2
+#endif
+#ifndef ITEM_TEXTSTYLE_NORMAL
+#define ITEM_TEXTSTYLE_NORMAL		0
+#define ITEM_TEXTSTYLE_BLINK		1
+#define ITEM_TEXTSTYLE_PULSE		2
+#define ITEM_TEXTSTYLE_SHADOWED		3
+#define ITEM_TEXTSTYLE_OUTLINED		4
+#define ITEM_TEXTSTYLE_OUTLINESHADOWED 5
+#define ITEM_TEXTSTYLE_SHADOWEDMORE	6
+#endif
+
 //Pmove functions
 int DF_GetMovePhysics();
 float DF_GetAccelerate();

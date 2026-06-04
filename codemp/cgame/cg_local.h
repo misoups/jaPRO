@@ -1397,6 +1397,32 @@ typedef struct cgMedia_s {
 	qhandle_t	leftTriangle;
 	sfxHandle_t	hitSound4;
 
+	// Movement keys display shaders
+	qhandle_t	keyForwardOnShader;
+	qhandle_t	keyForwardOnShader2;
+	qhandle_t	keyForwardOffShader;
+	qhandle_t	keyBackOnShader;
+	qhandle_t	keyBackOnShader2;
+	qhandle_t	keyBackOffShader;
+	qhandle_t	keyLeftOnShader;
+	qhandle_t	keyLeftOnShader2;
+	qhandle_t	keyLeftOffShader;
+	qhandle_t	keyRightOnShader;
+	qhandle_t	keyRightOnShader2;
+	qhandle_t	keyRightOffShader;
+	qhandle_t	keyJumpOnShader;
+	qhandle_t	keyJumpOnShader2;
+	qhandle_t	keyJumpOffShader;
+	qhandle_t	keyCrouchOnShader;
+	qhandle_t	keyCrouchOnShader2;
+	qhandle_t	keyCrouchOffShader;
+	qhandle_t	keyAttackOn;
+	qhandle_t	keyAttackOn2;
+	qhandle_t	keyAttackOff;
+	qhandle_t	keyAltOn;
+	qhandle_t	keyAltOn2;
+	qhandle_t	keyAltOff;
+
 } cgMedia_t;
 
 
@@ -1623,6 +1649,7 @@ typedef struct cgs_s {
 	int				restricts;
 	int				serverMod;		// SVMOD_NONE / SVMOD_JAPRO / SVMOD_JAPLUS
 	int				hookpull;		// grapple hook pull speed from server
+	float			widthRatioCoef;	// widescreen x-scaling coefficient (1.0 on 4:3)
 	qboolean		isJAPro;
 	qboolean		isJAPlus;
 

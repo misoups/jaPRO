@@ -2636,6 +2636,40 @@ Ghoul2 Insert End
 	cgs.media.leftTriangle		= trap->R_RegisterShader( "gfx/2d/tri_left" );
 	cgs.media.hitSound4			= trap->S_RegisterSound( "sound/weapons/blaster/fire.wav" );
 
+	// Movement keys display shaders
+	cgs.media.keyForwardOnShader    = trap->R_RegisterShaderNoMip( "gfx/hud/keys/forward_on" );
+	cgs.media.keyForwardOnShader2   = trap->R_RegisterShaderNoMip( "gfx/hud/keys/forward_on2" );
+	cgs.media.keyForwardOffShader   = trap->R_RegisterShaderNoMip( "gfx/hud/keys/forward_off" );
+	cgs.media.keyBackOnShader       = trap->R_RegisterShaderNoMip( "gfx/hud/keys/back_on" );
+	cgs.media.keyBackOnShader2      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/back_on2" );
+	cgs.media.keyBackOffShader      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/back_off" );
+	cgs.media.keyLeftOnShader       = trap->R_RegisterShaderNoMip( "gfx/hud/keys/left_on" );
+	cgs.media.keyLeftOnShader2      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/left_on2" );
+	cgs.media.keyLeftOffShader      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/left_off" );
+	cgs.media.keyRightOnShader      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/right_on" );
+	cgs.media.keyRightOnShader2     = trap->R_RegisterShaderNoMip( "gfx/hud/keys/right_on2" );
+	cgs.media.keyRightOffShader     = trap->R_RegisterShaderNoMip( "gfx/hud/keys/right_off" );
+	cgs.media.keyJumpOnShader       = trap->R_RegisterShaderNoMip( "gfx/hud/keys/jump_on" );
+	cgs.media.keyJumpOnShader2      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/jump_on2" );
+	cgs.media.keyJumpOffShader      = trap->R_RegisterShaderNoMip( "gfx/hud/keys/jump_off" );
+	cgs.media.keyCrouchOnShader     = trap->R_RegisterShaderNoMip( "gfx/hud/keys/crouch_on" );
+	cgs.media.keyCrouchOnShader2    = trap->R_RegisterShaderNoMip( "gfx/hud/keys/crouch_on2" );
+	cgs.media.keyCrouchOffShader    = trap->R_RegisterShaderNoMip( "gfx/hud/keys/crouch_off" );
+	cgs.media.keyAttackOn           = trap->R_RegisterShaderNoMip( "gfx/hud/keys/attack_on" );
+	cgs.media.keyAttackOn2          = trap->R_RegisterShaderNoMip( "gfx/hud/keys/attack_on2" );
+	cgs.media.keyAttackOff          = trap->R_RegisterShaderNoMip( "gfx/hud/keys/attack_off" );
+	cgs.media.keyAltOn              = trap->R_RegisterShaderNoMip( "gfx/hud/keys/alt_on" );
+	cgs.media.keyAltOn2             = trap->R_RegisterShaderNoMip( "gfx/hud/keys/alt_on2" );
+	cgs.media.keyAltOff             = trap->R_RegisterShaderNoMip( "gfx/hud/keys/alt_off" );
+
+	// Widescreen scaling coefficient (ratio of actual width to standard 640px)
+	if ( cgs.glconfig.vidWidth > 0 && cgs.glconfig.vidHeight > 0 ) {
+		float aspect = (float)cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight;
+		cgs.widthRatioCoef = aspect / (4.0f / 3.0f);
+	} else {
+		cgs.widthRatioCoef = 1.0f;
+	}
+
 	cgs.media.loadBarLED		= trap->R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadBarLEDCap		= trap->R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
 	cgs.media.loadBarLEDSurround= trap->R_RegisterShaderNoMip( "gfx/hud/mp_levelload" );
