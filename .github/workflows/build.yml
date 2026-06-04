@@ -64,6 +64,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=install \
             -DBuildSPEngine=OFF \
             -DBuildSPGame=OFF \
+            -DBuildMPEngine=OFF \
             -DBuildMPCGame=OFF \
             -DBuildMPUI=OFF
 
@@ -106,10 +107,10 @@ jobs:
             sudo dpkg --add-architecture i386
             sudo apt-get -qq update
             sudo apt-get -y install gcc-multilib g++-multilib ninja-build \
-              libjpeg-dev:i386 libpng-dev:i386 zlib1g-dev:i386 libsdl2-dev:i386
+              libjpeg-dev:i386 libpng-dev:i386 zlib1g-dev:i386 libsdl2-dev:i386 libopenal-dev:i386
           else
             sudo apt-get -qq update
-            sudo apt-get -y install libjpeg-dev libpng-dev zlib1g-dev libsdl2-dev
+            sudo apt-get -y install libjpeg-dev libpng-dev zlib1g-dev libsdl2-dev libopenal-dev
           fi
 
       - name: Configure CMake
