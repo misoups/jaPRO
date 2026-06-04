@@ -29,7 +29,6 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 #define TAYSTJK_HUD_STRAFEHELPER_H
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h"
 #include "../game/bg_public.h"
 
 //Pmove functions

@@ -62,6 +62,35 @@ float	pm_waterfriction = 1.0f;
 float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
 
+// Style-specific physics constants
+const float pm_sp_accelerate          = 12.0f;
+const float pm_sp_airaccelerate       = 4.0f;
+const float pm_sp_airDecelRate        = 1.35f;
+const float pm_vq3_duckScale          = 0.25f;
+const float pm_vq3_friction           = 8.0f;
+const float pm_cpm_accelerate         = 15.0f;
+const float pm_cpm_airaccelerate      = 1.0f;
+const float pm_cpm_airstopaccelerate  = 2.5f;
+const float pm_cpm_airstrafeaccelerate= 70.0f;
+const float pm_cpm_airstrafewishspeed = 30.0f;
+const float pm_cpm_aircontrol         = 150.0f;
+const float pm_wsw_accelerate         = 12.0f;
+const float pm_wsw_duckScale          = 0.3125f;
+const float pm_slick_accelerate       = 30.0f;
+const float pm_slick_airstrafeaccelerate = 100.0f;
+const float pm_slick_friction         = 0.0f;
+const float pm_jetpack_airaccelerate  = 1.4f;
+const float pm_qw_airaccelerate       = 0.7f;
+const float pm_qw_friction            = 4.0f;
+const float pm_qw_airstrafewishspeed  = 30.0f;
+const float pm_tribes_accelerate      = 2.5f;
+const float pm_tribes_airaccelerate   = 0.25f;
+const float pm_tribes_groundfriction  = 0.5f;
+const float pm_tribes_airfriction     = 1.9f;
+const float pm_tribes_groundstrafewishspeed = 30.0f;
+const float pm_surf_accelerate        = 12.0f;
+const float pm_surf_airaccelerate     = 100.0f;
+
 int		c_pmove = 0;
 
 float forceSpeedLevels[4] = 
@@ -3613,10 +3642,10 @@ static void PM_WaterMove( void ) {
 	if (pm->ps->stats[STAT_MOVEMENTSTYLE] == MV_QUAJK) {
 		float accel;
 		if (DotProduct(pm->ps->velocity, wishdir) < 0)
-			accel = 2.5f;
+			accel = pm_cpm_airstopaccelerate;
 		else
 			accel = pm_wateraccelerate;
-		PM_QuaJKAccelerate(wishdir, wishspeed, accel, 70.0f, 30.0f);
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, pm_cpm_airstrafewishspeed);
 	} else {
 		PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
 	}
@@ -4058,10 +4087,10 @@ static void PM_AirMove( void ) {
 	else if (moveStyle == MV_QUAJK) {
 		float accel;
 		if (DotProduct(pm->ps->velocity, wishdir) < 0)
-			accel = 2.5f;
+			accel = pm_cpm_airstopaccelerate;
 		else
 			accel = pm_airaccelerate;
-		PM_QuaJKAccelerate(wishdir, wishspeed, accel, 70.0f, 30.0f);
+		PM_QuaJKAccelerate(wishdir, wishspeed, accel, pm_cpm_airstrafeaccelerate, pm_cpm_airstrafewishspeed);
 	}
 	else if (moveStyle == MV_CPM || moveStyle == MV_OCPM || moveStyle == MV_PJK || moveStyle == MV_WSW || moveStyle == MV_RJCPM || moveStyle == MV_SLICK || moveStyle == MV_BOTCPM)
 	{
@@ -4874,7 +4903,7 @@ static void PM_WalkMove( void ) {
 	else if (((pml.groundTrace.surfaceFlags & SURF_SLICK) && moveStyle != MV_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
 	{//We just ignore this with slick style since we area always slick, we dont need the flag to tell us that
 		if (moveStyle == MV_OCPM || moveStyle == MV_QUAJK)
-			accelerate = 15.0f;
+			accelerate = pm_cpm_accelerate;
 		else
 			accelerate = pm_airaccelerate;
 	}
